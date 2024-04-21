@@ -34,7 +34,12 @@
 }
 
 .card {
+  white-space: pre-wrap; 
   padding: 2em;
+}
+
+pre{
+  white-space: initial;
 }
 
 .read-the-docs {

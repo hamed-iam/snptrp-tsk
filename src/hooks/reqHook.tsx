@@ -6,6 +6,9 @@ interface ReqHook {
   options?: any;
 }
 
+// Should be moved to a lib file and config with interceptors, would be overkill here.
+axios.defaults.baseURL = "https://jsonplaceholder.typicode.com";
+
 export default function useReqHook({ endPoint, options = {} }: ReqHook) {
   const [data, setData] = useState([]);
   const [loading, setLoadin] = useState(false);
@@ -20,6 +23,7 @@ export default function useReqHook({ endPoint, options = {} }: ReqHook) {
       setError(null);
     } catch (err) {
       setError(err);
+      setData(null);
       setLoadin(false);
     }
   };
@@ -28,5 +32,5 @@ export default function useReqHook({ endPoint, options = {} }: ReqHook) {
     handleFetchData();
   }, []);
 
-  return { data, loading, error };
+  return { data, loading, error, onRefetch: handleFetchData };
 }
