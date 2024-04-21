@@ -1,36 +1,47 @@
-import axios from "axios";
+import axios, {
+  type AxiosResponse,
+  AxiosError,
+  AxiosRequestConfig,
+} from "axios";
 import { useEffect, useState } from "react";
 
-interface ReqHook {
-  endPoint: string;
-  options?: any;
+interface ReqHook<T> {
+  data: T | null;
+  options?: AxiosRequestConfig;
+  loading: boolean;
+  error: unknown | AxiosError | null;
+  onRefetch: () => Promise<void>;
 }
 
 // Should be moved to a lib file and config with interceptors, would be overkill here.
 axios.defaults.baseURL = "https://jsonplaceholder.typicode.com";
 
-export default function useReqHook({ endPoint, options = {} }: ReqHook) {
-  const [data, setData] = useState([]);
-  const [loading, setLoadin] = useState(false);
-  const [error, setError] = useState(null);
+export default function useReqHook<T>(
+  endPoint: string,
+  options = {}
+): ReqHook<T> {
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<T | null>(null);
+  const [error, setError] = useState<unknown | AxiosError | null>(null);
 
   const handleFetchData = async () => {
-    setLoadin(true);
+    if (loading) return; // to prevent duplicate reqs
+    setLoading(true);
     try {
-      const res = await axios.get(endPoint, options);
+      const res: AxiosResponse<T> = await axios.get(endPoint, options);
       setData(res.data);
-      setLoadin(false);
+      setLoading(false);
       setError(null);
-    } catch (err) {
+    } catch (err: unknown | AxiosError) {
       setError(err);
-      setData(null);
-      setLoadin(false);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     handleFetchData();
-  }, []);
+  }, [endPoint]);
 
   return { data, loading, error, onRefetch: handleFetchData };
 }
