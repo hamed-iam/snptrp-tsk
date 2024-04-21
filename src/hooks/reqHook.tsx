@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface ReqHook {
   endPoint: string;
@@ -8,12 +8,25 @@ interface ReqHook {
 
 export default function useReqHook({ endPoint, options = {} }: ReqHook) {
   const [data, setData] = useState([]);
+  const [loading, setLoadin] = useState(false);
+  const [error, setError] = useState(null);
 
-  const fetchData = async () => {
+  const handleFetchData = async () => {
+    setLoadin(true);
     try {
       const res = await axios.get(endPoint, options);
-    } catch (err) {}
+      setData(res.data);
+      setLoadin(false);
+      setError(null);
+    } catch (err) {
+      setError(err);
+      setLoadin(false);
+    }
   };
 
-  return { data };
+  useEffect(() => {
+    handleFetchData();
+  }, []);
+
+  return { data, loading, error };
 }

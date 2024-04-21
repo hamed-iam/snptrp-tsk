@@ -6,7 +6,7 @@ import { useReqHook } from "./hooks";
 
 function App() {
   const [count, setCount] = useState(0);
-  const { data } = useReqHook();
+  const { data } = useReqHook({ endPoint: "https://jsonplaceholder.typicode.com/posts" });
 
   console.log(data);
 
